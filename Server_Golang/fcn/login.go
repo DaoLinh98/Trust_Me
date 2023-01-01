@@ -23,7 +23,7 @@ func Login(c echo.Context) error {
 	claims := token.Claims.(jwt.MapClaims)
 	claims["username"] = username
 	claims["admin"] = admin
-	claims["exp"] = time.Now().Add(time.Minute * 1).Unix()
+	claims["exp"] = time.Now().Add(time.Minute * 5).Unix()
 
 	//genagrated token
 	t, err := token.SignedString([]byte("mysecretkey"))
@@ -31,10 +31,7 @@ func Login(c echo.Context) error {
 		log.Printf("log err token: %v\n", err)
 		return err
 	}
-	// return the token for client
-	// return c.JSON(http.StatusOK, echo.Map{
-	// 	"token": t,
-	// })
+
 	return c.JSON(http.StatusOK, models.LoginResponse{
 		Tonken: t,
 	})
