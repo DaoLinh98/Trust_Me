@@ -5,12 +5,22 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/astaxie/beego/orm"
+	_ "github.com/go-sql-driver/mysql" // import your used driver
+	"github.com/golang/glog"
 	"github.com/labstack/echo/v4"
 )
 
+func init() {
+	orm.RegisterModel(new(User))
+
+}
+
 type User struct {
-	Name string
-	Age  int
+	Id    int64  `orm:"auto json:"id"`
+	Name  string `json:"name"`
+	Age   int    `json:"age"`
+	Phone string `json:"phone"`
 }
 
 var listUser = []User{
@@ -30,6 +40,24 @@ var listUser = []User{
 		Name: "d",
 		Age:  4,
 	},
+}
+
+func AddUser(c echo.Context) error {
+	user := &User{}
+	if err := c.Bind(user); err != nil {
+		glog.Error("bind user error: %v", err)
+		return err
+	}
+
+	o := orm.NewOrm()
+	id, err := o.Insert(user)
+	if err != nil {
+		glog.Error("inser user error : %v", err)
+		return err
+	}
+	glog.Infof("insert at row %d", id)
+	return c.JSON(http.StatusOK, user)
+
 }
 
 func GetAllUser(c echo.Context) error {
